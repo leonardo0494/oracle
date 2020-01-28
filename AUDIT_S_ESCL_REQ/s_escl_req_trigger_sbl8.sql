@@ -18,23 +18,29 @@ AFTER INSERT ON siebel.s_escl_req
 FOR EACH ROW
 DECLARE
     vGROUP varchar2(30);
+    vQtdLinhas number(1);
     vRULE varchar2(100);
 BEGIN
 
     -- SELECT NOME GRUPO
-    SELECT 
-        NAME INTO vGROUP 
-    FROM 
-        SIEBEL.s_escl_group 
-    WHERE 
-        row_id = :NEW.group_id;
+    SELECT COUNT(NAME) INTO vQtdLinhas FROM SIEBEL.S_ESCL_GROUP WHERE row_id = :NEW.group_id;
+    
+    IF vQtdLinhas > 0 THEN
+        SELECT NAME INTO vGROUP FROM SIEBEL.S_ESCL_GROUP WHERE row_id = :NEW.group_id;
+    ELSE
+        vGROUP := 'GRUPO NAO ENCONTRADO';
+    END IF;
+
     -- SELECT NOME REGRA
-    SELECT 
-        NAME INTO vRULE 
-    FROM 
-        SIEBEL.s_escl_rule 
-    WHERE 
-        row_id = :NEW.rule_id;
+    
+    SELECT COUNT(NAME) INTO vQtdLinhas FROM SIEBEL.S_ESCL_RULE WHERE row_id = :NEW.rule_id;
+    
+    IF vQtdLinhas > 0 THEN
+        SELECT NAME INTO vRULE FROM SIEBEL.S_ESCL_RULE WHERE row_id = :NEW.rule_id;
+    ELSE
+        vRULE := 'REGRA NAO ENCONTRADA';
+    END IF;
+
 
     -- INSERINDO NA TABELA DE AUDITORIA
 
